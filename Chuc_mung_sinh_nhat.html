@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Thiệp Chúc Mừng Sinh Nhật</title>
+  <style>
+    :root{
+      --bg1:#0f1020; --bg2:#1b2845;
+      --acc:#ff9a9e; --acc2:#fad0c4;
+      --ok:#3ddc97; --error:#ff4d6d;
+      --text:#eef2f7; --muted:#a8b3c7;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0}
+    body{
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(1200px 700px at 20% 10%, #23355d 0%, transparent 60%),
+        radial-gradient(900px 600px at 80% 90%, #1a2a4a 0%, transparent 55%),
+        linear-gradient(160deg,var(--bg1),var(--bg2));
+      overflow:hidden;
+    }
+    .wrap{position:relative;display:grid;place-items:center;min-height:100%;padding:24px;isolation:isolate;z-index:2}
+
+    /* Khung thiệp */
+    .gate,.card{
+      width:min(720px,92vw);
+      background:linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08);
+      backdrop-filter:blur(8px);
+      border-radius:18px; padding:28px;
+      box-shadow:0 10px 40px rgba(0,0,0,.35);
+      z-index:3;
+    }
+    .gate h1{margin:0 0 10px;font-weight:800;font-size:clamp(22px,3.5vw,30px)}
+    .gate p{margin:0 0 18px;color:var(--muted)}
+    .pass-row{display:flex;gap:12px;align-items:center}
+    .input{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:var(--text);padding:12px 14px;border-radius:12px;outline:none}
+    .btn{background:linear-gradient(135deg,#66f0c8,#2fd4a5);color:#0a0f18;font-weight:700;border:none;padding:12px 16px;border-radius:12px;cursor:pointer;min-width:120px;box-shadow:0 8px 22px rgba(47,212,165,.35)}
+    .err{color:var(--error);font-weight:600;min-height:1.2em;margin-top:8px}
+    .shake{animation:shake .28s ease-in-out}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+
+    .hidden{display:none}
+    .card{text-align:center;padding:34px 28px}
+    .title{
+      font-size: clamp(26px,5.5vw,44px); margin:.2em 0 .3em;
+      background:linear-gradient(90deg,#ffe08a,#ff9a9e 35%,#a18cd1 70%,#fbc2eb);
+      -webkit-background-clip:text;color:transparent;
+    }
+    .subtitle{color:#cdd7ea;margin:0 0 18px}
+    .paper{margin:22px auto 0;max-width:52ch;text-align:left;line-height:1.7;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:16px;padding:18px 20px;color:#f2f6ff}
+    .wish{margin:10px 0;white-space:pre-line}
+    .sig{margin-top:14px;color:#a9b6cf;font-style:italic}
+    .row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+    .tag{font-size:13px;color:#0b1220;background:#ffd166;padding:6px 10px;border-radius:999px}
+    .again{display:inline-flex;margin-top:20px;color:#9fb0c9;text-decoration:none;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:8px 14px}
+
+    /* Bóng bay */
+    #confetti{position:fixed;inset:0;pointer-events:none;z-index:1}
+    .balloon-stage{position:fixed;inset:0;overflow:hidden;pointer-events:none;z-index:1}
+    .balloon{
+      position:absolute; bottom:-120px; width:64px; height:80px;
+      border-radius:50% 50% 50% 50% / 60% 60% 40% 40%;
+      box-shadow: inset -6px -10px 18px rgba(0,0,0,.25), 0 10px 30px rgba(0,0,0,.25);
+      transform:translateX(-50%) scale(var(--scale,1));
+      animation: rise var(--speed,10s) linear forwards, sway 3.5s ease-in-out infinite;
+      cursor:pointer; pointer-events:auto;
+      z-index:2;
+    }
+    .balloon:after{
+      content:""; position:absolute; left:50%; bottom:-14px; width:2px; height:90px;
+      background:linear-gradient(transparent, rgba(255,255,255,.25)); transform:translateX(-50%);
+    }
+    @keyframes rise{
+      from{transform:translate(-50%, 10vh) scale(var(--scale,1)); opacity:.9}
+      to  {transform:translate(-50%, -120vh) scale(calc(var(--scale,1)*1.05)); opacity:1}
+    }
+    @keyframes sway{
+      0%{margin-left:-10px} 50%{margin-left:10px} 100%{margin-left:-10px}
+    }
+    .pop{animation: pop .35s ease forwards !important; box-shadow:none !important;}
+    @keyframes pop{
+      0%{transform:translate(-50%, var(--y,0)) scale(var(--scale,1)); opacity:1; filter:saturate(1)}
+      60%{transform:translate(-50%, var(--y,0)) scale(calc(var(--scale,1)*1.25)); opacity:.9; filter:saturate(1.3)}
+      100%{transform:translate(-50%, var(--y,0)) scale(.2); opacity:0}
+    }
+
+    /* Pháo hoa góc trên */
+    .firework{
+      position:fixed; width:6px; height:6px; border-radius:50%; pointer-events:none;
+      background:yellow; opacity:0; z-index:2;
+      animation: explode 1s ease-out forwards;
+    }
+    @keyframes explode{
+      0%{transform:scale(0); opacity:1}
+      80%{opacity:1}
+      100%{transform:scale(8); opacity:0}
+    }
+
+    /* Bánh sinh nhật */
+    .cake{
+      position:fixed; bottom:10px; font-size:48px; z-index:2;
+    }
+    .cake.left{left:15px}
+    .cake.right{right:15px}
+
+    .footer{position:fixed;left:0;right:0;bottom:10px;text-align:center;color:#90a4c6;font-size:12px;z-index:3}
+    @media (prefers-reduced-motion: reduce){
+      .shake, .balloon{animation:none}
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confetti" aria-hidden="true"></canvas>
+  <div class="balloon-stage" id="balloonStage" aria-hidden="true"></div>
+
+  <!-- Bánh sinh nhật -->
+  <div class="cake left">🎂</div>
+  <div class="cake right">🎂</div>
+
+  <div class="wrap">
+    <section id="gate" class="gate" aria-labelledby="gate-title">
+      <h1 id="gate-title">🔒 Mở thiệp sinh nhật</h1>
+      <p>Nhập mật khẩu để mở thiệp bí mật nhé!</p>
+      <div class="pass-row">
+        <input id="pw" class="input" type="password" inputmode="numeric" placeholder="Ví dụ: 25-08-2005" aria-label="Mật khẩu ngày tháng năm"/>
+        <button id="openBtn" class="btn" type="button">Mở thiệp</button>
+      </div>
+      <div id="err" class="err" role="status" aria-live="polite"></div>
+    </section>
+
+    <section id="card" class="card hidden" aria-live="polite">
+      <div class="row">
+        <span class="tag">🎂 25 • 08 • 2005</span>
+        <span class="tag">🎉 Happy Birthday</span>
+        <span class="tag">💖 PHẠM THỊ HƯƠNG LAN</span>
+      </div>
+      <h2 class="title">Chúc mừng sinh nhật! ✨</h2>
+      <p class="subtitle">Hôm nay là ngày của bạn – rực rỡ, đáng nhớ và tràn ngập nụ cười.</p>
+      <div class="paper" id="wishBox">
+        <p class="wish">Chúc bạn tuổi mới thật nhiều sức khỏe, bình an và may mắn.</p>
+        <p class="wish">Mọi ước mơ đều nở hoa, mọi cố gắng đều đơm trái.</p>
+        <p class="wish">Mong rằng bạn luôn được yêu thương đúng cách, làm điều mình thích và tỏa sáng theo cách riêng của mình!</p>
+        <p class="wish">Cảm ơn vì đã hiện diện và làm thế giới này trở nên tươi đẹp hơn.</p>
+        <p class="wish">Hãy tận hưởng từng khoảnh khắc hôm nay – vì bạn xứng đáng! 🌟</p>
+        <div class="sig">— Gửi đến bạn, từ người luôn trân quý bạn 💌</div>
+      </div>
+      <a href="#" class="again" id="againBtn">↩️ Đóng thiệp và nhập lại</a>
+    </section>
+  </div>
+
+  <div class="footer">Chúc bạn sang tuổi mới luôn xinh đẹp, dễ thương và đạt được điều mình muốn 💕</div>
+
+  <script>
+    const $ = s => document.querySelector(s);
+    const input = $("#pw"), gate = $("#gate"), card = $("#card"), err = $("#err");
+    const again = $("#againBtn"), canvas = $("#confetti"), ctx = canvas.getContext("2d");
+    const stage = $("#balloonStage");
+
+    function normalize(v){ return (v+"").replace(/[^\d]/g,""); }
+    function isCorrectPassword(v){ return normalize(v)==="25082005"; }
+
+    // Confetti
+    const confetti = {
+      pieces: [], running:false,
+      colors: ["#ff6b6b","#ffd93d","#6bcb77","#4d96ff","#b76cff","#ff9f1c","#2ec4b6","#f4a261"],
+      spawn(n=220){
+        const cw = canvas.width = innerWidth, ch = canvas.height = innerHeight;
+        for(let i=0;i<n;i++){
+          this.pieces.push({
+            x:Math.random()*cw, y:-20 - Math.random()*ch*0.2,
+            size:6+Math.random()*8,
+            color:this.colors[(Math.random()*this.colors.length)|0],
+            vy:1.5+Math.random()*3.5, vx:-1+Math.random()*2
+          });
+        }
+        if(!this.running){ this.running = true; requestAnimationFrame(this.loop.bind(this)); }
+        clearTimeout(this._t); this._t = setTimeout(()=>this.running=false,6000);
+      },
+      loop(){
+        if(!this.running) return;
+        const cw = canvas.width = innerWidth, ch = canvas.height = innerHeight;
+        ctx.clearRect(0,0,cw,ch);
+        this.pieces.forEach(p=>{ p.x += p.vx; p.y += p.vy; ctx.fillStyle = p.color; ctx.fillRect(p.x,p.y,p.size,p.size*0.6); });
+        this.pieces = this.pieces.filter(p => p.y < ch + 40 && p.x > -40 && p.x < cw + 40);
+        requestAnimationFrame(this.loop.bind(this));
+      }
+    };
+
+    // Typewriter effect
+    function typeEffect(el, text, speed=40){
+      el.textContent = "";
+      let i=0;
+      return new Promise(resolve=>{
+        (function tick(){
+          if(i<text.length){ el.textContent += text.charAt(i++); setTimeout(tick, speed); }
+          else resolve();
+        })();
+      });
+    }
+    const wishes = document.querySelectorAll(".wish");
+    wishes.forEach(w => { w.dataset.raw = w.textContent; w.textContent = ""; });
+    async function showWishesSequentially(){
+      for(const w of wishes){
+        const raw = w.dataset.raw;
+        await typeEffect(w, raw, 38);
+        await new Promise(r=>setTimeout(r, 450));
+      }
+    }
+
+    // Bóng bay
+    const BALLOON_COLORS = ["#ff9fb2","#ffcf6d","#8bd3dd","#b295ff","#66f0c8","#f4a261","#f78da7","#6ecb63"];
+    function createBalloon(){
+      const b = document.createElement("div");
+      b.className = "balloon";
+      const color = BALLOON_COLORS[(Math.random()*BALLOON_COLORS.length)|0];
+      const left = 8 + Math.random()*80;
+      const scale = 0.8 + Math.random()*0.8;
+      const speed = 9 + Math.random()*7;
+      b.style.left = left + "%";
+      b.style.setProperty("--scale", scale.toFixed(2));
+      b.style.setProperty("--speed", speed.toFixed(2) + "s");
+      b.style.background = color;
+      b.addEventListener("pointerdown", (e)=>{ e.preventDefault(); b.classList.add("pop"); setTimeout(()=>b.remove(),260); });
+      return b;
+    }
+    function launchBalloons({duration=12000, interval=220}={}){
+      const start = performance.now();
+      const timer = setInterval(()=>{
+        if(performance.now() - start > duration){ clearInterval(timer); return; }
+        const b = createBalloon();
+        stage.appendChild(b);
+        setTimeout(()=>b.remove(), 16000);
+      }, interval);
+    }
+
+    // Pháo hoa ở góc trên
+    function launchFireworks(){
+      const positions = [{x:50,y:80},{x:innerWidth-50,y:80}];
+      positions.forEach(pos=>{
+        for(let i=0;i<3;i++){
+          setTimeout(()=>{
+            const fw = document.createElement("div");
+            fw.className="firework";
+            fw.style.left = pos.x+"px";
+            fw.style.top = pos.y+"px";
+            fw.style.background = ["#ff6b6b","#ffd93d","#6bcb77","#4d96ff","#b76cff"][(Math.random()*5)|0];
+            document.body.appendChild(fw);
+            setTimeout(()=>fw.remove(),1000);
+          }, i*600 + Math.random()*300);
+        }
+      });
+    }
+
+    // Flow mở/đóng
+    function openCard(){
+      const v = input.value.trim();
+      if(isCorrectPassword(v)){
+        err.textContent = "";
+        gate.classList.add("hidden");
+        card.classList.remove("hidden");
+        confetti.spawn(260);
+        showWishesSequentially();
+        launchBalloons({duration:14000, interval:200});
+        launchFireworks();
+      }else{
+        err.textContent = "Mật khẩu chưa đúng rồi 🤔";
+        gate.classList.add("shake"); setTimeout(()=>gate.classList.remove("shake"), 320);
+        input.focus(); input.select();
+      }
+    }
+    $("#openBtn").addEventListener("click", openCard);
+    input.addEventListener("keydown", e=>{ if(e.key==="Enter") openCard(); });
+    $("#againBtn").addEventListener("click", e=>{
+      e.preventDefault();
+      input.value = "";
+      card.classList.add("hidden");
+      gate.classList.remove("hidden");
+      input.focus();
+    });
+    window.addEventListener("DOMContentLoaded", ()=> input.focus());
+  </script>
+</body>
+</html>
